@@ -17,7 +17,7 @@ Complete FlashCard learning backend using Django, Django REST Framework, and Red
 -  ⚙️ [**Installation**](#installation)
 -  🗂️ [**Project Structure**](#project-structure)
 -  ⭐ [**Features**](#features)
--  🔁 [**Spaced Repetition Algorithm**](#spaced-repetition-features)
+-  🔁 [**Spaced Repetition Algorithm**](#spaced-repetition-algorithm) 
 -  🌐 [**API Endpoints**](#api-endpoints)
 -  ⚡ [**Cache & Invalidation**](#cache--invalidation)
 - 🧪 [**Testing**](#testing)
