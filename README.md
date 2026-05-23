@@ -13,19 +13,19 @@ Complete FlashCard learning backend using Django, Django REST Framework, and Red
 
 ---
 
-## Table of Contents
--  ⚙️ [**Installation**](https://github.com/Alan6282/FlashCardLearning-API?tab=readme-ov-file#%EF%B8%8F-installation)
--  🗂️ [**Project Structure**](https://github.com/Alan6282/FlashCardLearning-API?tab=readme-ov-file#%EF%B8%8F-project-structure)
--  ⭐ [**Features**](https://github.com/Alan6282/FlashCardLearning-API?tab=readme-ov-file#%EF%B8%8F-features)
--  🔁 [**Spaced Repetition Algorithm**](https://github.com/Alan6282/FlashCardLearning-API?tab=readme-ov-file#%EF%B8%8F-spaced-repetition-features)
--  🌐 [**API Endpoints**](https://github.com/Alan6282/FlashCardLearning-API?tab=readme-ov-file#%EF%B8%8F-api-endpoints)
--  ⚡ [**Cache & Invalidation**](https://github.com/Alan6282/FlashCardLearning-API?tab=readme-ov-file#%EF%B8%8F-cache--invalidation)
-- 🧪 [**Testing**](https://github.com/Alan6282/FlashCardLearning-API?tab=readme-ov-file#%EF%B8%8F-testing)
-- 🚀 [**Future Enhancements**](https://github.com/Alan6282/FlashCardLearning-API?tab=readme-ov-file#%EF%B8%8F-future-enhancements)
+## **Table of Contents**
+-  ⚙️ [**Installation**](#installation)
+-  🗂️ [**Project Structure**](#project-structure)
+-  ⭐ [**Features**](#features)
+-  🔁 [**Spaced Repetition Algorithm**](#spaced-repetition-features)
+-  🌐 [**API Endpoints**](#api-endpoints)
+-  ⚡ [**Cache & Invalidation**](#cache--invalidation)
+- 🧪 [**Testing**](#testing)
+- 🚀 [**Future Enhancements**](#future-enhancements)
 
 ---
 
-## ⚙️ Installation
+##  **Installation**
 
 **1. Clone repository**
    ```bash
@@ -57,23 +57,23 @@ Complete FlashCard learning backend using Django, Django REST Framework, and Red
    ```
    Verify Redis is running: 
 
-    ```bash     
+   ```bash     
     docker ps 
-    ```
+   ```
 
 **5. Configure Environment Variables**
   
-    Copy environment template
+   Copy environment template
 
-    Windows 
-    ```bash
+   Windows 
+   ```bash
     copy .sample.env .env
-    ```
+   ```
 
-    macOS/Linux
-     ```bash 
+   macOS/Linux
+   ```bash 
      cp sample.env .env
-     ``` 
+   ``` 
 
 
 **6. Set variables in `.env` (or environment)**
@@ -129,10 +129,11 @@ Complete FlashCard learning backend using Django, Django REST Framework, and Red
    ReDoc:```http://127.0.0.1:8000/redoc/```
 
 
+[🔼 Back to Top](#drf-flashcardlearning-api-v100)
 
 ---
 
-## 🗂️ Project Structure
+##  **Project Structure**
 
  ```
  📂FlashCard_Learning_API
@@ -231,9 +232,11 @@ Complete FlashCard learning backend using Django, Django REST Framework, and Red
   ┗  📜README.md         
 ```
 
+[🔼 Back to Top](#drf-flashcardlearning-api-v100)
+
 ---
 
-## ⭐ Features
+## **Features**
 
 - User registration/login/logout with JWT
 - Card/Deck CRUD with per-user ownership enforcement
@@ -302,7 +305,7 @@ GET /api/endpoint/?page_size=20     # Custom page size
 ```
 
 
-## 🔁 Spaced Repetition Algorithm
+## **Spaced Repetition Algorithm**
 
 This app uses the SM-2 algorithm for spaced repetition, which dynamically adjusts the intervals between card reviews based on the user's self-assessed quality of recall (0-5 scale). It optimizes long-term retention by spacing reviews further apart as mastery increases, while resetting for poor performance. This is more effective than fixed-interval methods for efficient learning.
 
@@ -354,7 +357,11 @@ EF = EF + (0.1 - (5 - q) × (0.08 + (5 - q) × 0.02))
 
 Sources: [thyagoluciano/sm2 GitHub](https://github.com/thyagoluciano/sm2), [SuperMemo Wikipedia](https://en.wikipedia.org/wiki/SuperMemo).
 
-## 🌐 API Endpoints
+[🔼 Back to Top](#drf-flashcardlearning-api-v100)
+
+---
+
+## **API Endpoints**
 
 ### Auth
 - `POST /api/users/register/`
@@ -390,10 +397,11 @@ Sources: [thyagoluciano/sm2 GitHub](https://github.com/thyagoluciano/sm2), [Supe
 - `GET /api/stats/user/`
 - `GET /api/stats/deck/<deck_id>/`
 
+[🔼 Back to Top](#drf-flashcardlearning-api-v100)
 
 ---
 
-## ⚡ Cache & Invalidation
+## **Cache & Invalidation**
 
 - Uses Django Redis cache in `config/settings/base.py`.
 - Cache keys are built by user and query params, e.g. `user_<id>_deck_list_<sorted_params>`.
@@ -404,7 +412,7 @@ Sources: [thyagoluciano/sm2 GitHub](https://github.com/thyagoluciano/sm2), [Supe
 
 ---
 
-## 🧪 Testing
+## **Testing**
 
 This project uses **pytest** as the testing framework, which is a powerful and flexible tool for writing and running tests in Python. Pytest automatically discovers test files and functions (e.g., `test_*.py` or `*_test.py`), supports fixtures for setup/teardown, assertions, and plugins for coverage and more.
 
@@ -441,9 +449,11 @@ coverage run -m pytest
 coverage report --skip-covered
 ```
 
+[🔼 Back to Top](#drf-flashcardlearning-api-v100)
+
 ---
 
-## 🚀 Future Enhancements
+## **Future Enhancements**
 
 - Add per-user and per-deck role/permission layers
 - Add public decks and sharing features
@@ -458,3 +468,5 @@ coverage report --skip-covered
 - Ensure `DEBUG=False` in production to prevent sensitive data exposure.
 - Keep `SECRET_KEY` and DB credentials secret; use environment variables or secure vaults.
 - Use proper DB credentials and connection security (e.g., SSL for production).
+
+[🔼 Back to Top](#drf-flashcardlearning-api-v100)
