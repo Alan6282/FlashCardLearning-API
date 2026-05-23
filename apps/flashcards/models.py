@@ -10,9 +10,12 @@ from datetime import timedelta
 
 from django.utils import timezone
 
+from django.db.models import Q
+
 '''
 Deck Model Which Stores the info about the cards of Deck created by the user 
 '''
+
 class Deck(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE,related_name="decks")
     name = models.CharField(max_length=100)
@@ -26,6 +29,7 @@ class Deck(models.Model):
       constraints = [
         models.UniqueConstraint(fields=["user","name"],name="unique_deck_name_per_user")
       ]
+      ordering = ["-created_at"]
 
     def __str__(self):
         return f"{self.name} ({self.user.username})" 
@@ -36,6 +40,20 @@ class Card(models.Model):
     question = models.TextField()
     answer = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                condition=~Q(question=""),
+                name="question_not_empty"
+            ),
+            models.CheckConstraint(
+            condition=~Q(answer=""),
+            name="answer_not_empty"
+           )
+
+        ]
 
     def __str__(self):
 
@@ -141,10 +159,10 @@ class CardProgress(models.Model):
                 self.ease_factor = 1.3 # setting the value of ease to 1.3 when it is less than that
             
 
-            # schedule next review
-            self.next_review_date = timezone.now() + timedelta(days=self.interval)
+        # schedule next review
+        self.next_review_date = timezone.now() + timedelta(days=self.interval)
 
-            self.save()
+        self.save()
 
 
         

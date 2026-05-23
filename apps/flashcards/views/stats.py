@@ -14,6 +14,11 @@ class UserStatsView(APIView):
     ,due cards, and more.
     """
     permission_classes = [IsAuthenticated]
+
+
+    
+
+
   
 
 
@@ -93,12 +98,12 @@ class UserStatsView(APIView):
         
         except Exception as e:
            
-           logger.error(f"Error in DeckReviewSuggestionView.get():{str(e)}",
+           logger.error(f"Error in UserStatsView.get():{str(e)}",
                         exc_info=True
                         )
            return Response(
               {"detail":str(e)},
-              status=status.HTTP_404_NOT_FOUND
+              status=status.HTTP_500_INTERNAL_SERVER_ERROR
            )
 
 class DeckStatsView(APIView):
@@ -151,6 +156,7 @@ class DeckStatsView(APIView):
                         # -- reviews due today (SM-2) --
             due_today = CardProgress.objects.filter(
                 user = request.user,
+                card__deck=deck,
                 next_review_date__range = [today_start,today_end]
             ).count()
 
@@ -158,6 +164,7 @@ class DeckStatsView(APIView):
 
             overdue = CardProgress.objects.filter(
                 user = request.user,
+                card__deck=deck,
                 next_review_date__lt = today_start
             ).count()
 
@@ -201,5 +208,5 @@ class DeckStatsView(APIView):
                         )
            return Response(
               {"detail":str(e)},
-              status=status.HTTP_404_NOT_FOUND
+              status=status.HTTP_500_INTERNAL_SERVER_ERROR
            )

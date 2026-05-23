@@ -1,16 +1,15 @@
 from .base import *
 
 
-
-
-
-
 # Helper function for user cache invalidation
 def invalidate_user_cache(user_id: int, key_type: str = "review_list"):
     """Invalidate Redis cache for a specific user and key type."""
-    cache.delete_pattern(f"*user_{user_id}_{key_type}*")
 
-CACHE_TIMEOUT = 60 * 15
+    if hasattr(cache,"delete_pattern"):
+      
+      cache.delete_pattern(f"*user_{user_id}_{key_type}*")
+
+
 
 class ReviewListCreateView(APIView):
 
@@ -103,8 +102,20 @@ class ReviewListCreateView(APIView):
       
       user_id = request.user.id 
 
+      # Getting queries passed down to the endpoint through the request
+      params = request.GET.dict()
+
+
+      # sorted the queries to avoid duplicates by different orders of the queries
+
+      sorted_params = "&".join(
+           f"{key}={value}"
+           for key, value in sorted(params.items())
+      )
+
+
       # setting the cache key 
-      cache_key = f"user_{user_id}_review_list"
+      cache_key = f"user_{user_id}_review_list_{sorted_params}"
 
       # getting the cached data , if cache exists 
       cached_data = cache.get(cache_key)
@@ -149,7 +160,7 @@ class ReviewListCreateView(APIView):
      except NotFound as e:
             
             return Response(
-                {"detail": str(e)},
+                {"details": str(e)},
                 status=status.HTTP_404_NOT_FOUND
             )
      except Exception as e:
@@ -161,7 +172,7 @@ class ReviewListCreateView(APIView):
          )
 
          return Response(
-            {"detail":"An error occurred while processing your request."},
+            {"details":"An error occurred while processing your request."},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
          )
     
@@ -211,13 +222,13 @@ class ReviewDetailView(APIView):
         
         except ReviewHistory.DoesNotExist:
         
-            return Response({"detaills":"Review Not Found"})
+            return Response({"details":"Review Not Found"}, status=status.HTTP_404_NOT_FOUND)
                
         except Exception as e:
 
          # log the error for debugging 
          logger.error(
-            f"Error in ReviewListCreateView.get():{str(e)}",
+            f"Error in ReviewDetailView.get():{str(e)}",
             exc_info=True
          )
 

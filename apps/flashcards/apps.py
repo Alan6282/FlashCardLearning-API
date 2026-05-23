@@ -6,5 +6,3 @@ class FlashCardConfig(AppConfig):
     name = 'apps.flashcards'
  
 
-    def ready(self):
-        from . import signals

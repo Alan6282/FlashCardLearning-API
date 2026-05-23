@@ -5,5 +5,5 @@ from ..models import CustomUser
 class UserInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ["id","username"]
+        fields = ["id","username","mastered_cards","cards_reviewed"]
     

@@ -3,13 +3,6 @@ from .base import *
 
 
 
-
-
-
-
-CACHE_TIMEOUT = 60 * 15
-
-
 class ReviewSuggestionView(APIView):
 
     """
@@ -102,8 +95,15 @@ class ReviewSuggestionView(APIView):
                 
                 user_id = request.user.id
 
+                params = request.GET.dict()
+
+                sorted_params = "&".join(
+                    f"{key}={value}"
+                    for key, value in sorted(params.items())
+                )
+
                 # setting the cache key 
-                cache_key = f"user_{user_id}_suggestion_list"
+                cache_key = f"user_{user_id}_suggestion_list_{sorted_params}"
 
                 # getting the cached data , if cache exists 
                 cached_data = cache.get(cache_key)
@@ -151,19 +151,13 @@ class ReviewSuggestionView(APIView):
                 )
                 
          
-         except Card.DoesNotExist:
-              
-              return Response({
-                "detail":"Card Doesn't Exists"
-            })
-         
          except Exception as e:
            
            logger.error(f"Error in ReviewSuggestionView.get():{str(e)}",
                         exc_info=True
                         )
            return Response(
-            {"details":"An error occurred while processing your request."},
+            {"detail":"An error occurred while processing your request."},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
          )
         

@@ -45,14 +45,14 @@ class LoginView(APIView):
            'refresh':str(refresh)
         }
 
-        return Response(LoginResponseSerializer(response).data,status=status.HTTP_201_CREATED)
+        return Response(LoginResponseSerializer(response).data,status=status.HTTP_200_OK)
 
 
      except ValidationError as e:
         
         return Response(
            
-         e.detail,  
+         {"detail":str(e)},  
         status=status.HTTP_400_BAD_REQUEST
            
         )

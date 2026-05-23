@@ -4,10 +4,13 @@ from .base import *
 # Helper function for user cache invalidation
 def invalidate_user_cache(user_id: int, key_type: str = "deck_list"):
     """Invalidate Redis cache for a specific user and key type."""
-    cache.delete_pattern(f"*user_{user_id}_{key_type}_*")
+
+    if hasattr(cache,"delete_pattern"):
+     
+      cache.delete_pattern(f"*user_{user_id}_{key_type}_*")
 
 
-CACHE_TIMEOUT = 60 * 15
+
 
 class DeckListCreateView(APIView):
 
@@ -92,8 +95,18 @@ class DeckListCreateView(APIView):
       try:
         user_id = request.user.id
 
+        params = request.GET.dict() # Getting query from the url like "page=2" or "isPublic=true&page=2" etc...
+        
+
+        # sorting the queries to avoid duplicates with different order like "search=python&page=2" or "page=2&search=python"
+        sorted_params = "&".join(
+           f"{key}={value}"
+           for key, value in sorted(params.items())
+         )
+
+
         # setting the cache key 
-        cache_key = f"user_{user_id}_deck_list"  
+        cache_key = f"user_{user_id}_deck_list_{sorted_params}"  
 
        
         #getting the cached data , if cache exists
@@ -131,7 +144,7 @@ class DeckListCreateView(APIView):
       except NotFound as e:
 
          return Response(
-           {"detail": {str(e)}},
+           {"detail": str(e)},
             status=status.HTTP_404_NOT_FOUND 
          )
       except Exception as e:

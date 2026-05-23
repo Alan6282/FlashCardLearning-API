@@ -3,11 +3,23 @@ from .base import *
 from rest_framework import  serializers
 from ..models import CardProgress
 from ..serializers.cards import CardResponseSerializer
+
+
 class CardProgressSerializer(serializers.ModelSerializer):
     class Meta:
         model = CardProgress
         fields = ["user", "card", "repetitions", "interval", "ease_factor", "next_review_date"]
         read_only_fields = ["repetitions", "interval", "ease_factor", "next_review_date"]
+
+
+class CardProgressResponseSerializer(serializers.ModelSerializer):
+
+    class Meta:
+
+        model = CardProgress
+        fields = ["card","next_review_date"]
+
+
 
 
 class SuggestionPaginatedResponseSerializer(serializers.Serializer):

@@ -39,3 +39,6 @@ import logging
 
 # Create Logger Instance 
 logger = logging.getLogger(__name__)
+
+
+CACHE_TIMEOUT = 60 * 15 

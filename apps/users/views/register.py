@@ -61,7 +61,7 @@ class RegisterView(APIView):
      except ValidationError as e:
 
       return Response(
-        e.detail,  
+        {"detail":str(e)},  
         status=status.HTTP_400_BAD_REQUEST
     )
      

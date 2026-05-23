@@ -5,7 +5,7 @@ from django.contrib.auth.models import AbstractUser
 
 # Custom user model with additional profile fields
 class CustomUser(AbstractUser):
-    cards_reviwed = models.PositiveIntegerField(default=0)
+    cards_reviewed = models.PositiveIntegerField(default=0)
     mastered_cards = models.PositiveIntegerField(default=0)
    
 

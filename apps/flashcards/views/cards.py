@@ -5,13 +5,18 @@ from .base import *
 # Helper function for user cache invalidation
 def invalidate_user_cache(user_id: int, key_type: str = "card_list"):
     """Invalidate Redis cache for a specific user and key type."""
-    cache.delete_pattern(f"*user_{user_id}_{key_type}*")
+    
+    if hasattr(cache,"delete_pattern"):
+
+       cache.delete_pattern(f"*user_{user_id}_{key_type}*")
 
 def invalidate_deck_user_cache(user_id: int , key_type: str = "decksuggestion_list",deck_id=None):
 
-   cache.delete_pattern(f"*user_{user_id}_{key_type}_{deck_id}*")
+    if hasattr(cache,"delete_pattern"):
+ 
+       cache.delete_pattern(f"*user_{user_id}_{key_type}_{deck_id}*")
 
-CACHE_TIMEOUT = 60 * 15
+
 
 
 class CardListCreateView(APIView):
@@ -106,8 +111,17 @@ class CardListCreateView(APIView):
             
             user_id = request.user.id
 
+            # Getting queries from the request object 
+            params = request.GET.dict() 
+
+            # sorted the queries to avoid duplicates with different order 
+            sorted_params = "&".join(
+              f"{key}={value}"
+              for key, value in sorted(params.items())
+            )
+
             #setting the cache key
-            cache_key = f"user_{user_id}_card_list"
+            cache_key = f"user_{user_id}_card_list_{sorted_params}"
 
             #getting the cached data , if cache exists
             cached_data = cache.get(cache_key)
@@ -132,7 +146,7 @@ class CardListCreateView(APIView):
             result_page = paginator.paginate_queryset(card,request)
 
             if result_page is not None:
-               serializer = CardSerializer(result_page,many=True)
+               serializer = CardResponseSerializer(result_page,many=True)
                paginated_response = paginator.get_paginated_response(serializer.data)
                response_data = paginated_response.data
 
@@ -148,9 +162,10 @@ class CardListCreateView(APIView):
 
         except Deck.DoesNotExist:
 
-            return Response({
-                "details":"Deck Doesn't Exists"
-            })
+            return Response(
+               { "details":"Deck Doesn't Exists"},
+                status=status.HTTP_404_NOT_FOUND
+               )
                
         except NotFound as e:
             return Response(
@@ -163,8 +178,8 @@ class CardListCreateView(APIView):
                         exc_info=True
                         )
            return Response(
-              {"detail":str(e)},
-              status=status.HTTP_404_NOT_FOUND
+              {"detail":"An error occurred while processing your request."},
+              status=status.HTTP_500_INTERNAL_SERVER_ERROR
            )
         
 
@@ -293,8 +308,8 @@ class CardReviewListCreateView(APIView):
                'page_size',
                openapi.IN_QUERY,
                description=(
-                  f"Number of results per page(deault:{ReviewListPagination.page_size})",
-                  f"max:{ReviewListPagination.max_page_size})"
+                  f"Number of results per page (default: {ReviewListPagination.page_size}, "
+                  f"max: {ReviewListPagination.max_page_size})"
                ),
                type=openapi.TYPE_INTEGER,
                required=False
@@ -333,15 +348,25 @@ class CardReviewListCreateView(APIView):
          }
 
    )
-   @method_decorator(cache_page(60*15,key_prefix=lambda request: f"user_{request.user.id}_card_review_list"))
+  
    @method_decorator(vary_on_headers('Authorization'))
-
    def get(self,request, card_id):
       try: 
+
          user_id = request.user.id
 
+
+         # Getting the queries paramters from the request 
+
+         params = request.GET.dict()
+
+         sorted_params = "&".join(
+           f"{key}={value}"
+           for key, value in sorted(params.items())
+         )
+
          # setting the cache key 
-         cache_key = f"user_{user_id}_card_review_list"
+         cache_key = f"user_{user_id}_card_review_list_{sorted_params}"
 
          #getting the cahed data , if cache exists 
          cached_data = cache.get(cache_key)
@@ -349,7 +374,7 @@ class CardReviewListCreateView(APIView):
             return Response(cached_data)
          
 
-         card = Card.objects.get(id=card_id)
+         card = Card.objects.get(id=card_id, deck__user=request.user)
          # filter can be global or per user
          review = ReviewHistory.objects.filter(user=request.user,card=card)
 
@@ -362,7 +387,7 @@ class CardReviewListCreateView(APIView):
 
 
          if result_page is not None:
-            serializer = ReviewSerializer(result_page,many=True)
+            serializer = ReviewResponseSerializer(result_page,many=True)
             paginated_response = paginator.get_paginated_response(serializer.data)
             response_data = paginated_response.data
 
@@ -396,7 +421,7 @@ class CardReviewListCreateView(APIView):
          )
          return Response(
 
-            {"detail":"An error occured while processing your request."},
+            {"detail":"An error occurred while processing your request."},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
          )
       
@@ -438,7 +463,7 @@ class CardReviewListCreateView(APIView):
    def post(self,request,card_id):  
 
       try:
-         card = Card.objects.get(id=card_id)
+         card = Card.objects.get(id=card_id, deck__user=request.user)
       except Card.DoesNotExist:
 
          return Response(
@@ -490,7 +515,7 @@ class CardReviewListCreateView(APIView):
           )
 
           return Response(
-             {"detail":"An error occured while processing your request."},
+             {"detail":"An error occurred while processing your request."},
              status=status.HTTP_500_INTERNAL_SERVER_ERROR
           )
        
@@ -545,7 +570,7 @@ class CardDetailView(APIView):
            
 
             return Response(
-               {"details":"Card Doesn't Exists."},
+               {"detail":"Card does not exist."},
                status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:

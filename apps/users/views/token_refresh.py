@@ -63,6 +63,6 @@ class MyTokenRefreshView(TokenRefreshView):
             )
 
             return Response(
-                {"detil":"An error occurred while processing your request."},
+                {"detail":"An error occurred while processing your request."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
